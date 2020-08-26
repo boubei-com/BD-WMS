@@ -232,11 +232,16 @@ $(function() {
                 fixOrderMoney();
             }
 
-            if(changes.qty_uom && row.lotatt02) { 
-                row.qty = parseInt(changes.qty_uom) * parseInt(row.lotatt02);
+            if( !row.qty ) {
+                if(changes.qty_uom && row.lotatt02) { 
+                    row.qty = parseInt(changes.qty_uom) * parseInt(row.lotatt02);
+                }
+                if(row.qty_uom && changes.lotatt02) { 
+                    row.qty = parseInt(row.qty_uom) * parseInt(changes.lotatt02);
+                }
             }
-            if(row.qty_uom && changes.lotatt02) { 
-                row.qty = parseInt(row.qty_uom) * parseInt(changes.lotatt02);
+            if(row.lotatt02 && changes.qty) { 
+                row.qty_uom = Math.ceil( parseInt(changes.qty) / parseInt(row.lotatt02) );
             }
             if(row.qty != NaN) dg2.datagrid('refreshRow', index);
         },
@@ -826,10 +831,11 @@ function showItems(data, opable) {
         item.shelflife = sku.shelflife;
         item.owner_id = sku.owner_id;
 
-        if( item.lotatt02 ) {
+        item.qty_uom = item.pallet_num;
+        if( !item.qty_uom && item.lotatt02 ) {
             var uom = parseInt(item.lotatt02); 
             if( uom != NaN ) {
-                item.qty_uom = round(item.qty / uom, 2);
+                item.qty_uom = Math.ceil(item.qty / uom);
                 _qty_uom += item.qty_uom;
             }
         }
@@ -903,7 +909,7 @@ function saveItems() {
     }
 
     var result = [], asn = dg1.datagrid("getRows")[dg1_selected], money = 0, qty = 0, skus = 0;
-    result.push("id,asn_id,sku_id,qty,money,price,createdate,expiredate,invstatus,lotatt01,lotatt02,lotatt03,lotatt04");
+    result.push("id,asn_id,sku_id,qty,money,price,createdate,expiredate,invstatus,lotatt01,lotatt02,lotatt03,lotatt04,pallet_num");
 
     var rows = $('#t2').datagrid('getRows');
     var sku_ids = [];
@@ -919,7 +925,7 @@ function saveItems() {
 
         // 检查必要字段是否都已填写
         var obj = [row.id, asn.id, row.sku_id,
-             row.qty, row.money, row.price, row.createdate,row.expiredate,row.invstatus,row.lotatt01,row.lotatt02,row.lotatt03,row.lotatt04];
+             row.qty, row.money, row.price, row.createdate,row.expiredate,row.invstatus,row.lotatt01,row.lotatt02,row.lotatt03,row.lotatt04,row.qty_uom];
         result.push( obj.join(",") );
 
         money += parseFloat(row.money||0);

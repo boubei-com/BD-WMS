@@ -316,7 +316,7 @@ function queryInv(firstLoad) {
                 {
                     "skuname": "本页合计", 
                     "qty": round(_qty, 2), 
-                    "qty_uom": round(_qty_uom, 2), 
+                    "qty_uom": Math.ceil(_qty_uom), 
                     "qty_locked": round(_qty_locked,2), 
                     "money": round(_money,2)
                 } 

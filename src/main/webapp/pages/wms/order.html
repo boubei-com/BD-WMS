@@ -239,11 +239,16 @@ $(function() {
                 fixOrderMoney();
             }
 
-            if(changes.qty_uom && row.lotatt02) { 
-                row.qty = parseInt(changes.qty_uom) * parseInt(row.lotatt02);
+            if( !row.qty ) {
+                if(changes.qty_uom && row.lotatt02) { 
+                    row.qty = parseInt(changes.qty_uom) * parseInt(row.lotatt02);
+                }
+                if(row.qty_uom && changes.lotatt02) { 
+                    row.qty = parseInt(row.qty_uom) * parseInt(changes.lotatt02);
+                }
             }
-            if(row.qty_uom && changes.lotatt02) { 
-                row.qty = parseInt(row.qty_uom) * parseInt(changes.lotatt02);
+            if(row.lotatt02 && changes.qty) { 
+                row.qty_uom = Math.ceil( parseInt(changes.qty) / parseInt(row.lotatt02) );
             }
             if(row.qty != NaN) dg2.datagrid('refreshRow', index);
         },
@@ -903,10 +908,12 @@ function showItems(data, invMap, opable) {
         if( item.inv_id ) {     
             item.out_loc = invMap[item.inv_id].location_id;  // inv_id 转换成 out_loc
         }
-        if( item.lotatt02 ) {
+
+        item.qty_uom = item.pallet_num;
+        if( !item.qty_uom && item.lotatt02 ) {
             var uom = parseInt(item.lotatt02); 
             if( uom != NaN ) {
-                item.qty_uom = round(item.qty / uom, 2);
+                item.qty_uom = Math.ceil(item.qty / uom);
                 _qty_uom += item.qty_uom;
             }
         }
